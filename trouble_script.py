@@ -41,6 +41,12 @@ bads = ['25073877', '72931184']  # IDs of bad people
 listener = ts.statuses.filter(follow=','.join(bads))
 while True:
     tweet = next(listener)
+    """
+    Check if the tweet is original - workaroud for now. listener also gets
+    unwanted retweets, replies and so on.
+    """
+    if tweet['user']['id'] not in bads:
+        continue
     # If they tweet, send them a kinda slappy reply.
     reply(
         tweet['id'],
