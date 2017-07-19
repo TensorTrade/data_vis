@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
+import os
 from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 # Maybe we can utilize 'RT to win' stuff by this same script.
 
 oauth = OAuth(
-    os.environ['ACCESS_TOKEN'],
-    os.environ['ACCESS_SECRET'],
-    os.environ['CONSUMER_KEY'],
-    os.environ['CONSUMER_SECRET']
+    os.environ['TW_ACCESS_TOKEN'],
+    os.environ['TW_ACCESS_SECRET'],
+    os.environ['TW_CONSUMER_KEY'],
+    os.environ['TW_CONSUMER_SECRET']
     )
 
 def reply(tweet_id, user_name, msg):
@@ -20,6 +21,17 @@ def reply(tweet_id, user_name, msg):
         in_reply_to_status_id=tweet_id
         )
 
+
+def print_tweet(tweet):
+    print(tweet["user"]["name"])
+    print(tweet["user"]["screen_name"])
+    print(tweet["created_at"])
+    print(tweet["text"])
+    hashtags = []
+    hs = tweet["entities"]["hashtags"]
+    for h in hs:
+        hashtags.append(h["text"])
+    print(hashtags)
 
 t = Twitter(auth=oauth)
 ts = TwitterStream(auth=oauth)
@@ -35,6 +47,8 @@ while True:
         tweet['user']['screen_name'],
         "You yourself are an embodiment of fake news."
     )
+    # Print tweet for logging.
+    print_tweet(tweet)
     """You yourself are an embodiment of fake news. <some random link>"""
 
 # Maybe we can utilize 'RT to win' stuff by this same script.
