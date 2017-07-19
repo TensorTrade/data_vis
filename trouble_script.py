@@ -23,9 +23,18 @@ def reply(tweet_id, user_name, msg):
 
 t = Twitter(auth=oauth)
 ts = TwitterStream(auth=oauth)
-bads = [25073877, 72931184]  # IDs of bad people
+bads = ['25073877', '72931184']  # IDs of bad people
 
 # Listen to bad people.
-# If they tweet, send them a kinda slappy reply.
-"""You are an embodiment of fake news. <some random link>"""
+listener = ts.statuses.filter(follow=','.join(bads))
+while True:
+    tweet = next(listener)
+    # If they tweet, send them a kinda slappy reply.
+    reply(
+        tweet['id'],
+        tweet['user']['screen_name'],
+        "You yourself are an embodiment of fake news."
+    )
+    """You yourself are an embodiment of fake news. <some random link>"""
+
 # Maybe we can utilize 'RT to win' stuff by this same script.
