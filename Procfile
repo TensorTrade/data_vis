@@ -1,1 +1,1 @@
-worker: python3 troubling_script.py
+worker: python3 trouble_script.py
