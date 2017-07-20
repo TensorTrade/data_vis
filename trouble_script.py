@@ -70,6 +70,7 @@ def main():
             unwanted retweets, replies and so on.
             """
             if tweet['user']['id'] not in bads:
+                print("Ignored from:", tweet['user']['id'])
                 continue
             # If they tweet, send them a kinda slappy reply.
             reply(
