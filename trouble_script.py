@@ -35,10 +35,10 @@ def print_tweet(tweet):
 
 t = Twitter(auth=oauth)
 ts = TwitterStream(auth=oauth)
-bads = ['25073877', '72931184']  # IDs of bad people
+bads = [25073877, 72931184]  # IDs of bad people
 
 # Listen to bad people.
-listener = ts.statuses.filter(follow=','.join(bads))
+listener = ts.statuses.filter(follow=','.join([str(bad) for bad in bads]))
 while True:
     tweet = next(listener)
     """
@@ -46,6 +46,7 @@ while True:
     unwanted retweets, replies and so on.
     """
     if tweet['user']['id'] not in bads:
+        print(type(tweet['user']['id']))
         continue
     # If they tweet, send them a kinda slappy reply.
     reply(
