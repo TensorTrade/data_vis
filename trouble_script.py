@@ -6,6 +6,7 @@ to win' competititons.
 import json
 import os
 import random
+import re
 import requests
 import time
 import threading
@@ -42,6 +43,23 @@ with requests.get(links['bads']) as bads_file:
 # Gets messages to tweet.
 with requests.get(links['messages']) as messages_file:
     messages = messages_file.text.split('\n')[:-1]
+
+offensive = re.compile(
+    r"\b(deaths?|dead(ly)?|die(s|d)?|hurts?|(sex(ual(ly)?)?|child)[ -]?(abused?|trafficking|"
+    r"assault(ed|s)?)|injur(e|i?es|ed|y)|kill(ing|ed|er|s)?s?|wound(ing|ed|s)?|fatal(ly|ity)?|"
+    r"shoo?t(s|ing|er)?s?|crash(es|ed|ing)?|attack(s|ers?|ing|ed)?|murder(s|er|ed|ing)?s?|"
+    r"hostages?|(gang)?rap(e|es|ed|ist|ists|ing)|assault(s|ed)?|pile-?ups?|massacre(s|d)?|"
+    r"assassinate(d|s)?|sla(y|in|yed|ys|ying|yings)|victims?|tortur(e|ed|ing|es)|"
+    r"execut(e|ion|ed|ioner)s?|gun(man|men|ned)|suicid(e|al|es)|bomb(s|ed|ing|ings|er|ers)?|"
+    r"mass[- ]?graves?|bloodshed|state[- ]?of[- ]?emergency|al[- ]?Qaeda|blasts?|violen(t|ce)|"
+    r"lethal|cancer(ous)?|stab(bed|bing|ber)?s?|casualt(y|ies)|sla(y|ying|yer|in)|"
+    r"drown(s|ing|ed|ings)?|bod(y|ies)|kidnap(s|ped|per|pers|ping|pings)?|rampage|beat(ings?|en)|"
+    r"terminal(ly)?|abduct(s|ed|ion)?s?|missing|behead(s|ed|ings?)?|homicid(e|es|al)|"
+    r"burn(s|ed|ing)? alive|decapitated?s?|jihadi?s?t?|hang(ed|ing|s)?|funerals?|traged(y|ies)|"
+    r"autops(y|ies)|child sex|sob(s|bing|bed)?|pa?edophil(e|es|ia)|9(/|-)11|Sept(ember|\.)? 11|"
+    r"genocide)\W?\b",
+    flags=re.IGNORECASE) #Copyright (c) 2013-2016 Molly White
+    #Above offensive compilation is not my stuff
 
 def reply(tweet_id, user_name, msg):
     """
@@ -94,6 +112,16 @@ def quote_tweet(tweet, text): #may not work for long links because of 140-limit.
      except TwitterHTTPError:
              return 0
 
+
+def unfollow(iden):
+    success = 0
+    try:
+        t.friendships.destroy(_id=iden)
+        success += 1
+    except Exception as e:
+        print(e)
+    #print "Unfollowed %i people." % success
+
 class StreamThread(threading.Thread):
     def __init__(self, handler):
         threading.Thread.__init__(self)
@@ -128,12 +156,12 @@ class StreamThread(threading.Thread):
                     random.choice(messages)
                 )
                 # Print tweet for logging.
-                print()
+                print('-*-'*33)
                 print_tweet(tweet)
             except Exception as e:  # So that loop doesn't stop if error occurs.
                 print(json.dumps(tweet, indent=4))
                 print(e)
-            print()
+            print('-*-'*33)
             """You yourself are an embodiment of fake news. <some random link>"""
 
 
@@ -144,21 +172,25 @@ class AccountThread(threading.Thread):
 
     def run(self):
         """Main loop to handle account retweets, follows, and likes."""
+        print("Account Manager started.")
         while 1:
             with requests.get(links['keywords']) as keywords_file:
-                keywords = keywords_file.text.split('\n')[:-1]
+                words = keywords_file.text.split('\n')[:-1]
             word = random.choice(words)
-            tweets = self.t.search.tweets(q=word+' -from:arichduvet', count=199, lang="en")["statuses"] #understand OR operator
-            fr = self.t.friends.ids(screen_name="arichduvet")["ids"]
+            # Add '-from:TheRealEqualizer' in the following line.
+            tweets = self.t.search.tweets(q=word, count=199, lang="en")["statuses"] #understand OR operator
+            print(len(tweets))
+            '''
+            fr = t.friends.ids(screen_name="screen_name_here")["ids"]
             if len(fr) > 4990: #To unfollow old follows because Twitter doesn't allow a large following / followers ratio for people with less followers.
                                #Using 5990 instead of 5000 for 'safety', so that I'm able to follow some interesting people
                                #manually even after a bot crash.
-                for i in xrange(2500): #probably this is the upper limit of mass unfollow in one go
+                for i in range(2500): #probably this is the upper limit of mass unfollow in one go
                     unfollow(fr.pop())
-
+            '''
             for tweet in tweets:
                 try:
-                    if re.search(offensive, tweet["text"]) == None:
+                    if re.search(offensive, tweet["text"]) is None:
                         print("Search tag:", word)
                         print_tweet(tweet)
                         print()
@@ -169,10 +201,18 @@ class AccountThread(threading.Thread):
                             op = tweet["retweeted_status"]["user"]
                             self.t.friendships.create(_id=op["id"])
                         print()
-                except:
-                    pass
+                except Exception as e:
+                    print(e)
                 time.sleep(61)
+
+
+def main():
+    """Main function to handle different activites of the account."""
+    streamer = StreamThread(ts)  # For the troubling part.
+    account_manager = AccountThread(t)  # For retweets, likes, follows.
+    streamer.start()
+    account_manager.run()
 
 # Execute the main() function only if script is executed directly.
 if __name__ == "__main__":
-    pass
+    main()
