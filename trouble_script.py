@@ -75,6 +75,9 @@ def main():
             if tweet['user']['id'] not in bads:
                 print("Ignored from:", tweet['user']['screen_name'])
                 continue
+            # Gets messages to tweet.
+            with requests.get(links['messages']) as messages_file:
+                messages = messages_file.text.split('\n')[:-1]
             # If they tweet, send them a kinda slappy reply.
             reply(
                 tweet['id'],
@@ -82,6 +85,7 @@ def main():
                 random.choice(messages)
             )
             # Print tweet for logging.
+            print()
             print_tweet(tweet)
         except Exception as e:  # So that loop doesn't stop if error occurs.
             print(json.dumps(tweet, indent=4))
