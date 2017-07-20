@@ -63,24 +63,26 @@ def main():
     # Listen to bad people.
     listener = ts.statuses.filter(follow=','.join([str(bad) for bad in bads]))
     while True:
-        tweet = next(listener)
-        """
-        Check if the tweet is original - workaroud for now. listener also gets
-        unwanted retweets, replies and so on.
-        """
-        if tweet['user']['id'] not in bads:
-            continue
-        # If they tweet, send them a kinda slappy reply.
         try:
+            tweet = next(listener)
+            """
+            Check if the tweet is original - workaroud for now. listener also gets
+            unwanted retweets, replies and so on.
+            """
+            if tweet['user']['id'] not in bads:
+                continue
+            # If they tweet, send them a kinda slappy reply.
             reply(
                 tweet['id'],
                 tweet['user']['screen_name'],
                 random.choice(messages)
             )
+            # Print tweet for logging.
+            print_tweet(tweet)
         except Exception as e:  # So that loop doesn't stop if error occurs.
+            print_tweet(tweet)
             print(e)
-        # Print tweet for logging.
-        print_tweet(tweet)
+        print()
         """You yourself are an embodiment of fake news. <some random link>"""
 
 # Execute the main() function only if script is executed directly.
