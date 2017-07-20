@@ -131,6 +131,7 @@ class StreamThread(threading.Thread):
         """This is the function for main listener loop."""
         # TBD: Add periodic data checks to get updated data for messages, bads.
         # Listen to bad people.
+        print("Streamer started.")
         listener = self.ts.statuses.filter(
             follow=','.join(
                 [str(bad) for bad in bads]
@@ -179,7 +180,6 @@ class AccountThread(threading.Thread):
             word = random.choice(words)
             # Add '-from:TheRealEqualizer' in the following line.
             tweets = self.t.search.tweets(q=word, count=199, lang="en")["statuses"] #understand OR operator
-            print(len(tweets))
             '''
             fr = t.friends.ids(screen_name="screen_name_here")["ids"]
             if len(fr) > 4990: #To unfollow old follows because Twitter doesn't allow a large following / followers ratio for people with less followers.
