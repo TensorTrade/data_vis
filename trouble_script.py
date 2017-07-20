@@ -6,6 +6,8 @@ import requests
 from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 # Maybe we can utilize 'RT to win' stuff by this same script.
 
+# TBD: Use multithreading to make the bot better.
+
 try:
     oauth = OAuth(
         os.environ['TW_ACCESS_TOKEN'],
@@ -60,6 +62,7 @@ def print_tweet(tweet):
 
 def main():
     """This is the function for main listener loop."""
+    # TBD: Add periodic data checking to get updated data for messages, bads.
     # Listen to bad people.
     listener = ts.statuses.filter(follow=','.join([str(bad) for bad in bads]))
     while True:
