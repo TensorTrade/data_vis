@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
+import json
 import os
+import random
+import requests
 from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 # Maybe we can utilize 'RT to win' stuff by this same script.
 
@@ -19,7 +22,18 @@ except KeyError:  # For local tests.
 
 t = Twitter(auth=oauth)
 ts = TwitterStream(auth=oauth)
-bads = [25073877, 72931184]  # IDs of bad people
+
+# Perhaps using a database would be better if frequent updation is needed.
+
+# This gets links to files containing relevant data.
+with open('links.txt', 'r') as links_file:
+    links = json.loads(links_file.read())
+# Gets IDs of bad people.
+with requests.get(links['bads']) as bads_file:
+    bads = [int(user_id) for user_id in bads_file.text.split('\n')[:-1]]
+# Gets messages to tweet.
+with requests.get(links['messages']) as messages_file:
+    messages = messages_file.text.split('\n')[:-1]
 
 def reply(tweet_id, user_name, msg):
     """
@@ -57,11 +71,14 @@ def main():
         if tweet['user']['id'] not in bads:
             continue
         # If they tweet, send them a kinda slappy reply.
-        reply(
-            tweet['id'],
-            tweet['user']['screen_name'],
-            "You yourself are an embodiment of fake news."
-        )
+        try:
+            reply(
+                tweet['id'],
+                tweet['user']['screen_name'],
+                random.choice(messages)
+            )
+        except Exception as e:  # So that loop doesn't stop if error occurs.
+            print(e)
         # Print tweet for logging.
         print_tweet(tweet)
         """You yourself are an embodiment of fake news. <some random link>"""
