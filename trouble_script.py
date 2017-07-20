@@ -3,12 +3,20 @@ import os
 from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 # Maybe we can utilize 'RT to win' stuff by this same script.
 
-oauth = OAuth(
-    os.environ['TW_ACCESS_TOKEN'],
-    os.environ['TW_ACCESS_SECRET'],
-    os.environ['TW_CONSUMER_KEY'],
-    os.environ['TW_CONSUMER_SECRET']
+try:
+    oauth = OAuth(
+        os.environ['TW_ACCESS_TOKEN'],
+        os.environ['TW_ACCESS_SECRET'],
+        os.environ['TW_CONSUMER_KEY'],
+        os.environ['TW_CONSUMER_SECRET']
     )
+except KeyError:  # For local tests.
+    with open('.env', 'r') as secret:
+        exec(secret.read())
+        oauth = OAuth(
+            ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET
+        )
+
 
 def reply(tweet_id, user_name, msg):
     """
