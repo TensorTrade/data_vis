@@ -17,6 +17,9 @@ except KeyError:  # For local tests.
             ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET
         )
 
+t = Twitter(auth=oauth)
+ts = TwitterStream(auth=oauth)
+bads = [25073877, 72931184]  # IDs of bad people
 
 def reply(tweet_id, user_name, msg):
     """
@@ -41,28 +44,28 @@ def print_tweet(tweet):
         hashtags.append(h["text"])
     print(hashtags)
 
-t = Twitter(auth=oauth)
-ts = TwitterStream(auth=oauth)
-bads = [25073877, 72931184]  # IDs of bad people
+def main():
+    """This is the function for main listener loop."""
+    # Listen to bad people.
+    listener = ts.statuses.filter(follow=','.join([str(bad) for bad in bads]))
+    while True:
+        tweet = next(listener)
+        """
+        Check if the tweet is original - workaroud for now. listener also gets
+        unwanted retweets, replies and so on.
+        """
+        if tweet['user']['id'] not in bads:
+            continue
+        # If they tweet, send them a kinda slappy reply.
+        reply(
+            tweet['id'],
+            tweet['user']['screen_name'],
+            "You yourself are an embodiment of fake news."
+        )
+        # Print tweet for logging.
+        print_tweet(tweet)
+        """You yourself are an embodiment of fake news. <some random link>"""
 
-# Listen to bad people.
-listener = ts.statuses.filter(follow=','.join([str(bad) for bad in bads]))
-while True:
-    tweet = next(listener)
-    """
-    Check if the tweet is original - workaroud for now. listener also gets
-    unwanted retweets, replies and so on.
-    """
-    if tweet['user']['id'] not in bads:
-        continue
-    # If they tweet, send them a kinda slappy reply.
-    reply(
-        tweet['id'],
-        tweet['user']['screen_name'],
-        "You yourself are an embodiment of fake news."
-    )
-    # Print tweet for logging.
-    print_tweet(tweet)
-    """You yourself are an embodiment of fake news. <some random link>"""
-
-# Maybe we can utilize 'RT to win' stuff by this same script.
+# Execute the main() function only if script is executed directly.
+if __name__ == "__main__":
+    main()
