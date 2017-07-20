@@ -70,7 +70,7 @@ def main():
             unwanted retweets, replies and so on.
             """
             if tweet['user']['id'] not in bads:
-                print("Ignored from:", tweet['user']['id'])
+                print("Ignored from:", tweet['user']['screen_name'])
                 continue
             # If they tweet, send them a kinda slappy reply.
             reply(
@@ -81,7 +81,7 @@ def main():
             # Print tweet for logging.
             print_tweet(tweet)
         except Exception as e:  # So that loop doesn't stop if error occurs.
-            print_tweet(tweet)
+            print(json.dumps(tweet, indent=4))
             print(e)
         print()
         """You yourself are an embodiment of fake news. <some random link>"""
