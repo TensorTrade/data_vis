@@ -1,4 +1,5 @@
 {
     "bads": "https://dl.dropboxusercontent.com/s/ccs2gxehow1x498/bads.txt?dl=0",
-    "messages": "https://dl.dropboxusercontent.com/s/x6sn6hior6v98d4/messages.txt?dl=0"
+    "messages": "https://dl.dropboxusercontent.com/s/x6sn6hior6v98d4/messages.txt?dl=0",
+    "keywords": "https://dl.dropboxusercontent.com/s/ua0tnrpnevnmwh5/keywords.txt?dl=0"
 }
