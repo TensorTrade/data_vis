@@ -12,8 +12,8 @@ import time
 import threading
 from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 # Maybe we can utilize 'RT to win' stuff by this same script.
-
-# TBD: Use multithreading to make the bot better.
+# Use the below link for image search.
+# https://www.google.co.in/search?site=imghp&tbm=isch&source=hp&biw=1280&bih=647&q=trump+funny+meme
 
 try:
     oauth = OAuth(
