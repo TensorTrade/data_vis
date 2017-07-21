@@ -176,7 +176,7 @@ class AccountThread(threading.Thread):
         print("Account Manager started.")
         while 1:
             with requests.get(links['keywords']) as keywords_file:
-                words = keywords_file.text.split('\n')[:-1]
+                words = keywords_file.text.split('\n')
             word = random.choice(words)
             # Add '-from:TheRealEqualizer' in the following line.
             tweets = self.t.search.tweets(q=word, count=199, lang="en")["statuses"] #understand OR operator
