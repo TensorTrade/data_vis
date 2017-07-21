@@ -39,10 +39,10 @@ with open('links.txt', 'r') as links_file:
     links = json.loads(links_file.read())
 # Gets IDs of bad people.
 with requests.get(links['bads']) as bads_file:
-    bads = [int(user_id) for user_id in bads_file.text.split('\n')[:-1]]
+    bads = [int(user_id) for user_id in bads_file.text.split('\n')]
 # Gets messages to tweet.
 with requests.get(links['messages']) as messages_file:
-    messages = messages_file.text.split('\n')[:-1]
+    messages = messages_file.text.split('\n')
 
 offensive = re.compile(
     r"\b(deaths?|dead(ly)?|die(s|d)?|hurts?|(sex(ual(ly)?)?|child)[ -]?(abused?|trafficking|"
