@@ -180,7 +180,6 @@ class AccountThread(threading.Thread):
             word = random.choice(words)
             # Add '-from:TheRealEqualizer' in the following line.
             tweets = self.t.search.tweets(q=word, count=199, lang="en")["statuses"] #understand OR operator
-            print("# of tweets:", len(tweets))
 
             with requests.get(links['screen_name']) as screen_name_file:
                 screen_name = screen_name_file.text.strip()
