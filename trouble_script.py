@@ -35,7 +35,7 @@ ts = TwitterStream(auth=oauth)
 # Perhaps using a database would be better if frequent updation is needed.
 
 # This gets links to files containing relevant data.
-with open('links.txt', 'r') as links_file:
+with open('links.json', 'r') as links_file:
     links = json.loads(links_file.read())
 # Gets IDs of bad people.
 with requests.get(links['bads']) as bads_file:
@@ -180,14 +180,18 @@ class AccountThread(threading.Thread):
             word = random.choice(words)
             # Add '-from:TheRealEqualizer' in the following line.
             tweets = self.t.search.tweets(q=word, count=199, lang="en")["statuses"] #understand OR operator
-            '''
-            fr = t.friends.ids(screen_name="screen_name_here")["ids"]
+            print("# of tweets:", len(tweets))
+
+            with requests.get(links['screen_name']) as screen_name_file:
+                screen_name = screen_name_file.text.strip()
+
+            fr = t.friends.ids(screen_name=screen_name)["ids"]
             if len(fr) > 4990: #To unfollow old follows because Twitter doesn't allow a large following / followers ratio for people with less followers.
-                               #Using 5990 instead of 5000 for 'safety', so that I'm able to follow some interesting people
+                               #Using 4990 instead of 5000 for 'safety', so that I'm able to follow some interesting people
                                #manually even after a bot crash.
                 for i in range(2500): #probably this is the upper limit of mass unfollow in one go
                     unfollow(fr.pop())
-            '''
+
             for tweet in tweets:
                 try:
                     if re.search(offensive, tweet["text"]) is None:
