@@ -4,3 +4,4 @@ bads.txt
 messages.txt
 keywords.txt
 __pycache__/
+.DS_Store
