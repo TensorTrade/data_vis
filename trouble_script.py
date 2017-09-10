@@ -22,6 +22,7 @@ try:
         os.environ['TW_CONSUMER_KEY'],
         os.environ['TW_CONSUMER_SECRET']
     )
+    SHORTE_ST_TOKEN = os.environ['SHORTE_ST_TOKEN']
 except KeyError:  # For local tests.
     with open('.env', 'r') as secret:
         exec(secret.read())
@@ -35,7 +36,7 @@ ts = TwitterStream(auth=oauth)
 # Perhaps using a database would be better if frequent updation is needed.
 
 # This gets links to files containing relevant data.
-with open('links.txt', 'r') as links_file:
+with open('links.json', 'r') as links_file:
     links = json.loads(links_file.read())
 # Gets IDs of bad people.
 with requests.get(links['bads']) as bads_file:
@@ -122,6 +123,20 @@ def unfollow(iden):
         print(e)
     #print "Unfollowed %i people." % success
 
+
+def shorten_url(url):
+    """Shortens the passed url using shorte.st's API."""
+
+    response = requests.put(
+        "https://api.shorte.st/v1/data/url",
+        {"urlToShorten": url}, headers={"public-api-token": SHORTE_ST_TOKEN}
+        )
+    info = json.loads(response.content.decode())
+    if info["status"] == "ok":
+        return info["shortenedUrl"]
+    return url  # If shortening fails, the original url is returned.
+
+
 class StreamThread(threading.Thread):
     def __init__(self, handler):
         threading.Thread.__init__(self)
@@ -147,18 +162,40 @@ class StreamThread(threading.Thread):
                 if tweet['user']['id'] not in bads:
                     print("Ignored from:", tweet['user']['screen_name'])
                     continue
+                
                 # Gets messages to tweet.
                 with requests.get(links['messages']) as messages_file:
                     messages = messages_file.text.split('\n')[:-1]
                 # If they tweet, send them a kinda slappy reply.
+                """
                 reply(
                     tweet['id'],
                     tweet['user']['screen_name'],
                     random.choice(messages)
+                )"""
+                max_length = 0
+                for word in tweet["text"].split():  # Finds the largest word.
+                    if len(word) > max_length:
+                        max_length = len(word)
+                        max_word = word
+                
+                # Searches for a related tweet with max_word
+                rep_tweet = t.search.tweets(q=max_word, count=1, lang="en")["statuses"][0] #understand OR operator
+                tweet_link = "https://twitter.com/"+rep_tweet["user"]["screen_name"]+"/status/"+rep_tweet["id_str"]
+                short_url = shorten_url(tweet_link)
+                message = random.choice(messages) + " " + short_url
+                reply(
+                    tweet['id'],
+                    tweet['user']['screen_name'],
+                    message
                 )
+                
                 # Print tweet for logging.
                 print('-*-'*33)
                 print_tweet(tweet)
+                print('*'*33)
+                print_tweet(rep_tweet)
+                print('-*-'*33)
             except Exception as e:  # So that loop doesn't stop if error occurs.
                 print(json.dumps(tweet, indent=4))
                 print(e)
@@ -180,14 +217,17 @@ class AccountThread(threading.Thread):
             word = random.choice(words)
             # Add '-from:TheRealEqualizer' in the following line.
             tweets = self.t.search.tweets(q=word, count=199, lang="en")["statuses"] #understand OR operator
-            '''
-            fr = t.friends.ids(screen_name="screen_name_here")["ids"]
+
+            with requests.get(links['screen_name']) as screen_name_file:
+                screen_name = screen_name_file.text.strip()
+
+            fr = t.friends.ids(screen_name=screen_name)["ids"]
             if len(fr) > 4990: #To unfollow old follows because Twitter doesn't allow a large following / followers ratio for people with less followers.
-                               #Using 5990 instead of 5000 for 'safety', so that I'm able to follow some interesting people
+                               #Using 4990 instead of 5000 for 'safety', so that I'm able to follow some interesting people
                                #manually even after a bot crash.
                 for i in range(2500): #probably this is the upper limit of mass unfollow in one go
                     unfollow(fr.pop())
-            '''
+
             for tweet in tweets:
                 try:
                     if re.search(offensive, tweet["text"]) is None:
