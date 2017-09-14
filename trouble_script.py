@@ -222,10 +222,10 @@ class AccountThread(threading.Thread):
                 screen_name = screen_name_file.text.strip()
 
             fr = t.friends.ids(screen_name=screen_name)["ids"]
-            if len(fr) > 4990: #To unfollow old follows because Twitter doesn't allow a large following / followers ratio for people with less followers.
-                               #Using 4990 instead of 5000 for 'safety', so that I'm able to follow some interesting people
+            if len(fr) > 4000: #To unfollow old follows because Twitter doesn't allow a large following / followers ratio for people with less followers.
+                               #Using 4000 instead of 5000 for 'safety', so that I'm able to follow some interesting people
                                #manually even after a bot crash.
-                for i in range(2500): #probably this is the upper limit of mass unfollow in one go
+                for i in range(1000): #probably this is the upper limit of mass unfollow in one go
                     unfollow(fr.pop())
 
             for tweet in tweets:
