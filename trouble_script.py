@@ -222,10 +222,10 @@ class AccountThread(threading.Thread):
                 screen_name = screen_name_file.text.strip()
 
             fr = t.friends.ids(screen_name=screen_name)["ids"]
-            if len(fr) > 4990: #To unfollow old follows because Twitter doesn't allow a large following / followers ratio for people with less followers.
-                               #Using 4990 instead of 5000 for 'safety', so that I'm able to follow some interesting people
+            if len(fr) > 4000: #To unfollow old follows because Twitter doesn't allow a large following / followers ratio for people with less followers.
+                               #Using 4000 instead of 5000 for 'safety', so that I'm able to follow some interesting people
                                #manually even after a bot crash.
-                for i in range(2500): #probably this is the upper limit of mass unfollow in one go
+                for i in range(1000): #probably this is the upper limit of mass unfollow in one go
                     unfollow(fr.pop())
 
             for tweet in tweets:
@@ -249,9 +249,9 @@ class AccountThread(threading.Thread):
 def main():
     """Main function to handle different activites of the account."""
     streamer = StreamThread(ts)  # For the troubling part.
-    account_manager = AccountThread(t)  # For retweets, likes, follows.
+    #account_manager = AccountThread(t)  # For retweets, likes, follows.
     streamer.start()
-    account_manager.run()
+    #account_manager.run()
 
 # Execute the main() function only if script is executed directly.
 if __name__ == "__main__":
