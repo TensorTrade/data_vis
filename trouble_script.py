@@ -249,9 +249,9 @@ class AccountThread(threading.Thread):
 def main():
     """Main function to handle different activites of the account."""
     streamer = StreamThread(ts)  # For the troubling part.
-    account_manager = AccountThread(t)  # For retweets, likes, follows.
+    #account_manager = AccountThread(t)  # For retweets, likes, follows.
     streamer.start()
-    account_manager.run()
+    #account_manager.run()
 
 # Execute the main() function only if script is executed directly.
 if __name__ == "__main__":
