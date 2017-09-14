@@ -3,5 +3,7 @@ bads.txt
 messages.txt
 keywords.txt
 __pycache__/
+.DS_Store
 screen_name.txt
 .vscode/
+
