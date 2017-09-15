@@ -160,7 +160,7 @@ class StreamThread(threading.Thread):
                 also gets unwanted retweets, replies and so on.
                 """
                 if tweet['user']['id'] not in bads:
-                    print("Ignored from:", tweet['user']['screen_name'])
+                    #print("Ignored from:", tweet['user']['screen_name'])
                     continue
                 
                 # Gets messages to tweet.
