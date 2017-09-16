@@ -14,6 +14,7 @@ from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 # Maybe we can utilize 'RT to win' stuff by this same script.
 # Use the below link for image search.
 # https://www.google.co.in/search?site=imghp&tbm=isch&source=hp&biw=1280&bih=647&q=trump+funny+meme
+# Also post images in replies.
 
 try:
     oauth = OAuth(
@@ -172,15 +173,16 @@ class StreamThread(threading.Thread):
                     tweet['id'],
                     tweet['user']['screen_name'],
                     random.choice(messages)
-                )"""
+                )
                 max_length = 0
                 for word in tweet["text"].split():  # Finds the largest word.
                     if len(word) > max_length:
                         max_length = len(word)
                         max_word = word
+                        """
                 
-                # Searches for a related tweet with max_word
-                rep_tweet = t.search.tweets(q=max_word, count=1, lang="en")["statuses"][0] #understand OR operator
+                # Searches for a related tweet, later add images.
+                rep_tweet = t.search.tweets(q=tweet["user"]["name"], count=1, lang="en")["statuses"][0] #understand OR operator
                 tweet_link = "https://twitter.com/"+rep_tweet["user"]["screen_name"]+"/status/"+rep_tweet["id_str"]
                 short_url = shorten_url(tweet_link)
                 message = random.choice(messages) + " " + short_url
