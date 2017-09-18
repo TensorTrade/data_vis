@@ -76,6 +76,7 @@ def reply(tweet_id, user_name, msg):
 
 
 def print_tweet(tweet):
+    """Displays the primary contents of a tweet, maybe except links."""
     print(tweet["user"]["name"])
     print(tweet["user"]["screen_name"])
     print(tweet["created_at"])
@@ -88,6 +89,9 @@ def print_tweet(tweet):
 
 
 def fav_tweet(tweet):
+    """Favorites a passed tweet and returns a success status - 1 if successful
+    otherwise 0.
+    """
      try:
              result = t.favorites.create(_id=tweet['id'])
              return 1
@@ -96,6 +100,9 @@ def fav_tweet(tweet):
 
 
 def retweet(tweet):
+    """Retweets a passed tweet and returns a success status - 1 if successful
+    otherwise 0.
+    """
      try:
              t.statuses.retweet._id(_id=tweet["id"])
              return 1
@@ -251,9 +258,9 @@ class AccountThread(threading.Thread):
 def main():
     """Main function to handle different activites of the account."""
     streamer = StreamThread(ts)  # For the troubling part.
-    #account_manager = AccountThread(t)  # For retweets, likes, follows.
+    account_manager = AccountThread(t)  # For retweets, likes, follows.
     streamer.start()
-    #account_manager.run()
+    account_manager.run()
 
 # Execute the main() function only if script is executed directly.
 if __name__ == "__main__":
