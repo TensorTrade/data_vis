@@ -239,6 +239,10 @@ class StreamThread(threading.Thread):
 
 
 class AccountThread(threading.Thread):
+    """
+    Account thread manages favoriting, retweeting and following people who
+    tweet interesting stuff.
+    """
     def __init__(self, handler):
         threading.Thread.__init__(self)
         self.t = handler
@@ -278,16 +282,16 @@ class AccountThread(threading.Thread):
             for tweet in tweets:
                 try:
                     if re.search(offensive, tweet["text"]) is None:
-                        print("Search tag:", word)
-                        print_tweet(tweet)
-                        print()
-                        print("Heart =", fav_tweet(tweet))
-                        print("Retweet =", retweet(tweet))
+                        #print("Search tag:", word)
+                        #print_tweet(tweet)
+                        #print()
+                        #print("Heart =", fav_tweet(tweet))
+                        #print("Retweet =", retweet(tweet))
                         self.t.friendships.create(_id=tweet["user"]["id"])
                         if "retweeted_status" in tweet:
                             op = tweet["retweeted_status"]["user"]
                             self.t.friendships.create(_id=op["id"])
-                        print()
+                        #print()
                 except Exception as e:
                     print(e)
                 time.sleep(61)
