@@ -4,4 +4,3 @@ pyparsing==2.1.10
 six
 twitter
 requests
-Pattern==2.6
