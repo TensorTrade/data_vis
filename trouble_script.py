@@ -10,6 +10,7 @@ import re
 import requests
 import time
 import threading
+from lxml.html import fromstring
 from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 # Maybe we can utilize 'RT to win' stuff by this same script.
 # Use the below link for image search.
@@ -164,6 +165,24 @@ def shorten_url(url):
     return url  # If shortening fails, the original url is returned.
 
 
+def get_top_headline(query):
+    """
+    Gets top headline for a query from Google News.
+    Returns in format (headline, link)
+    """
+
+    # Following assumes that query doesn't contain special characters.
+    url_encoded_query = '%20'.join(query.split())
+    req = "https://news.google.com/news/search/section/q/" + query
+
+    tree = fromstring(requests.get(req).content)
+    news_item = tree.find(".//main/div/c-wiz/div/c-wiz")
+    headline = news_item.xpath('.//a/text()')[0].strip()
+    link = news_item.xpath('.//a/@href')[0].strip()
+
+    return (headline, link)
+
+
 class StreamThread(threading.Thread):
     def __init__(self, handler):
         threading.Thread.__init__(self)
@@ -225,11 +244,11 @@ class StreamThread(threading.Thread):
                 )
 
                 # Print tweet for logging.
-                print('-*-'*33)
+                print("Tweet:")
                 print_tweet(tweet)
-                print('*'*33)
+                print('*'*33+ "\nReply:")
                 print_tweet(rep_tweet)
-                print('-*-'*33)
+                print()
             except Exception as e:
                 # Loop shouldn't stop if error occurs, and exception should be
                 # logged.
