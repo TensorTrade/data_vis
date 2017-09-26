@@ -154,12 +154,12 @@ class AccountThread(threading.Thread):
                         #print("Search tag:", word)
                         #print_tweet(tweet)
                         #print()
-                        #print("Heart =", fav_tweet(sef.t, tweet))
-                        #print("Retweet =", retweet(self.t, tweet))
-                        self.t.friendships.create(_id=tweet["user"]["id"])
-                        if "retweeted_status" in tweet:
-                            op = tweet["retweeted_status"]["user"]
-                            self.t.friendships.create(_id=op["id"])
+                        fav_tweet(sef.t, tweet))
+                        retweet(self.t, tweet))
+                        #self.t.friendships.create(_id=tweet["user"]["id"])
+                        #if "retweeted_status" in tweet:
+                        #    op = tweet["retweeted_status"]["user"]
+                        #    self.t.friendships.create(_id=op["id"])
                         #print()
                 except Exception as e:
                     print(e)
