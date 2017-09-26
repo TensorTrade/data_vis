@@ -3,10 +3,11 @@ import re
 import requests
 import threading
 from lxml.html import fromstring
+from trouble_script import SHORTE_ST_TOKEN
 "This script contains useful functions for Twitter handling."
 # Here 't' is account handler defined in the main script.
 
-def reply(tweet_id, user_name, msg):
+def reply(t, tweet_id, user_name, msg):
     """
     Sends msg as reply to the tweet whose id is passed.
     user_name of the tweet's author is required as per Twitter API docs.
@@ -32,7 +33,7 @@ def print_tweet(tweet):
     print(hashtags)
 
 
-def fav_tweet(tweet):
+def fav_tweet(t, tweet):
     """Favorites a passed tweet and returns a success status - 1 if successful
     otherwise 0.
     """
@@ -43,7 +44,7 @@ def fav_tweet(tweet):
         return 0
 
 
-def retweet(tweet):
+def retweet(t, tweet):
     """Retweets a passed tweet and returns a success status - 1 if successful
     otherwise 0.
     """
@@ -56,7 +57,7 @@ def retweet(tweet):
         return 0
 
 
-def quote_tweet(tweet, text):
+def quote_tweet(t, tweet, text):
     """Quotes a passed tweet with a passed text and then tweets it."""
 
     # May not work for long links because of 140-limit. Can be improved.
@@ -71,7 +72,7 @@ def quote_tweet(tweet, text):
         return 0
 
 
-def unfollow(iden):
+def unfollow(t, iden):
     success = 0
     try:
         t.friendships.destroy(_id=iden)

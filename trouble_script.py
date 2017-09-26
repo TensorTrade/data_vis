@@ -6,7 +6,6 @@ to win' competititons.
 import os
 import requests
 import threading
-from functions import *  # Useful functions for Twitter and scraping stuff.
 from managers import *  # Useful classes for streaming and account handling. 
 from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 
@@ -15,10 +14,7 @@ from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
 # https://www.google.co.in/search?site=imghp&tbm=isch&source=hp&biw=1280&bih=647&q=trump+funny+meme
 # Also post images in replies.
 
-
-def main():
-    """Main function to handle different activites of the account."""
-    try:
+try:
         oauth = OAuth(
             os.environ['TW_ACCESS_TOKEN'],
             os.environ['TW_ACCESS_SECRET'],
@@ -26,16 +22,21 @@ def main():
             os.environ['TW_CONSUMER_SECRET']
         )
         SHORTE_ST_TOKEN = os.environ['SHORTE_ST_TOKEN']
-    except KeyError:  # For local tests.
-        with open('.env', 'r') as secret:
-            exec(secret.read())
-            oauth = OAuth(
-                ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET
-            )
+except KeyError:  # For local run.
+    with open('.env', 'r') as secret:
+        exec(secret.read())
+        oauth = OAuth(
+            ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET
+        )
 
-    t = Twitter(auth=oauth)
-    ts = TwitterStream(auth=oauth)
-    streamer = StreamThread(ts)  # For the troubling part.
+t = Twitter(auth=oauth)
+ts = TwitterStream(auth=oauth)
+
+
+def main():
+    """Main function to handle different activites of the account."""
+
+    streamer = StreamThread(ts, t)  # For the troubling part.
     account_manager = AccountThread(t)  # For retweets, likes, follows.
     streamer.start()
     account_manager.run()

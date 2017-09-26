@@ -1,18 +1,36 @@
-from functions import *  # Useful functions for Twitter and scraping stuff.
-import json
-# For identifying offensive tweets.
-from offensive import offensive as offensive
+"""
+This script contains classes for account management as well as listening
+and responding to Twitter info.
+"""
+
 import random
 import requests
 import time
 import threading
+from functions import *  # Useful functions for Twitter and scraping stuff.
+import json
+# For identifying offensive tweets.
+from offensive import offensive as offensive
+
+
+# Perhaps using a database would be better if frequent updation is needed.
+
+# This gets links to files containing relevant data.
+with open('links.json', 'r') as links_file:
+    links = json.loads(links_file.read())
+# Gets IDs of bad people.
+with requests.get(links['bads']) as bads_file:
+    bads = [int(user_id) for user_id in bads_file.text.split('\n')]
+# Gets messages to tweet.
+with requests.get(links['messages']) as messages_file:
+    messages = messages_file.text.split('\n')
 
 
 class StreamThread(threading.Thread):
-    def __init__(self, handler, bads):
+    def __init__(self, stream_handler, account_handler):
         threading.Thread.__init__(self)
-        self.ts = handler
-        self.bads = bads
+        self.ts = stream_handler
+        self.t = account_handler
 
     def run(self):
         """This is the function for main listener loop."""
@@ -21,7 +39,7 @@ class StreamThread(threading.Thread):
         print("Streamer started.")
         listener = self.ts.statuses.filter(
             follow=','.join(
-                [str(bad) for bad in self.bads]
+                [str(bad) for bad in bads]
             )
         )
         while True:
@@ -31,7 +49,7 @@ class StreamThread(threading.Thread):
                 Check if the tweet is original - workaroud for now. listener
                 also gets unwanted retweets, replies and so on.
                 """
-                if tweet['user']['id'] not in self.bads:
+                if tweet['user']['id'] not in bads:
                     continue
 
                 # Gets messages to tweet.
@@ -39,7 +57,7 @@ class StreamThread(threading.Thread):
                     messages = messages_file.text.split('\n')[:-1]
                 # If they tweet, send them a kinda slappy reply.
                 """
-                reply(
+                reply(self.t, 
                     tweet['id'],
                     tweet['user']['screen_name'],
                     random.choice(messages)
@@ -55,7 +73,7 @@ class StreamThread(threading.Thread):
                 news_content = get_top_headline(tweet["user"]["name"])
 
                 """
-                rep_tweet = t.search.tweets(
+                rep_tweet = self.t.search.tweets(
                     q=tweet["user"]["name"],
                     count=1, lang="en"
                     )["statuses"][0]
@@ -68,6 +86,7 @@ class StreamThread(threading.Thread):
                 short_url = shorten_url(news_content[1])
                 message = random.choice(messages) + " " + short_url
                 reply(
+                    self.t,
                     tweet['id'],
                     tweet['user']['screen_name'],
                     message
@@ -77,14 +96,14 @@ class StreamThread(threading.Thread):
                 print("Tweet:")
                 print_tweet(tweet)
                 print('*'*33+ "\nReply:")
-                print_tweet(news_content)
+                print(message)
                 print()
             except Exception as e:
                 # Loop shouldn't stop if error occurs, and exception should be
                 # logged.
                 print(json.dumps(tweet, indent=4))
                 print(e)
-            print('-*-'*33)
+                print('-*-'*33)
 
 
 class AccountThread(threading.Thread):
@@ -112,7 +131,7 @@ class AccountThread(threading.Thread):
             with requests.get(links['screen_name']) as screen_name_file:
                 screen_name = screen_name_file.text.strip()
 
-            fr = t.friends.ids(screen_name=screen_name)["ids"]
+            fr = self.t.friends.ids(screen_name=screen_name)["ids"]
             if len(fr) > 4000:
                 """
                 To unfollow old follows because Twitter doesn't allow a large
@@ -125,8 +144,8 @@ class AccountThread(threading.Thread):
                 """
                 Perhaps 1000 is the upper limit of mass unfollow in one go.
                 """
-                for i in range(1000):
-                    unfollow(fr.pop())
+                for _ in range(1000):
+                    unfollow(self.t, fr.pop())
 
             for tweet in tweets:
                 try:
@@ -134,8 +153,8 @@ class AccountThread(threading.Thread):
                         #print("Search tag:", word)
                         #print_tweet(tweet)
                         #print()
-                        #print("Heart =", fav_tweet(tweet))
-                        #print("Retweet =", retweet(tweet))
+                        #print("Heart =", fav_tweet(sef.t, tweet))
+                        #print("Retweet =", retweet(self.t, tweet))
                         self.t.friendships.create(_id=tweet["user"]["id"])
                         if "retweeted_status" in tweet:
                             op = tweet["retweeted_status"]["user"]
