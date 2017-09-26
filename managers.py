@@ -154,8 +154,8 @@ class AccountThread(threading.Thread):
                         #print("Search tag:", word)
                         #print_tweet(tweet)
                         #print()
-                        fav_tweet(sef.t, tweet))
-                        retweet(self.t, tweet))
+                        fav_tweet(self.t, tweet)
+                        retweet(self.t, tweet)
                         #self.t.friendships.create(_id=tweet["user"]["id"])
                         #if "retweeted_status" in tweet:
                         #    op = tweet["retweeted_status"]["user"]
