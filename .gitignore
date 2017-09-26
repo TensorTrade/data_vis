@@ -6,7 +6,7 @@ __pycache__/
 .DS_Store
 screen_name.txt
 .vscode/
-links.json
 adbotkeyword_extraction_w_parser.py
 emoji_table.txt
 adbot
+links.json
