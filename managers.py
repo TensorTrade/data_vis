@@ -3,12 +3,12 @@ This script contains classes for account management as well as listening
 and responding to Twitter info.
 """
 
+import json
 import random
-import requests
 import time
 import threading
+import requests
 from functions import *  # Useful functions for Twitter and scraping stuff.
-import json
 # For identifying offensive tweets.
 from offensive import offensive as offensive
 
@@ -27,6 +27,11 @@ with requests.get(links['messages']) as messages_file:
 
 
 class StreamThread(threading.Thread):
+    """
+    This class is to be used for listening specific people on Twitter and
+    respond to them as soon as they tweet.
+    """
+
     def __init__(self, stream_handler, account_handler):
         threading.Thread.__init__(self)
         self.ts = stream_handler
@@ -45,10 +50,8 @@ class StreamThread(threading.Thread):
         while True:
             try:
                 tweet = next(listener)
-                """
-                Check if the tweet is original - workaroud for now. listener
-                also gets unwanted retweets, replies and so on.
-                """
+                """Check if the tweet is original - workaroud for now.
+                listener also gets unwanted retweets, replies and so on."""
                 if tweet['user']['id'] not in bads:
                     continue
 
@@ -107,10 +110,8 @@ class StreamThread(threading.Thread):
 
 
 class AccountThread(threading.Thread):
-    """
-    Account thread manages favoriting, retweeting and following people who
-    tweet interesting stuff.
-    """
+    """Account thread manages favoriting, retweeting and following people who
+    tweet interesting stuff."""
     def __init__(self, handler):
         threading.Thread.__init__(self)
         self.t = handler
