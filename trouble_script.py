@@ -225,7 +225,10 @@ class StreamThread(threading.Thread):
                         max_word = word
                         """
 
-                # Searches for a related tweet, later add images.
+                # Searches for a related news, later add images.
+                news_content = get_top_headline(tweet["user"]["name"])
+
+                """
                 rep_tweet = t.search.tweets(
                     q=tweet["user"]["name"],
                     count=1, lang="en"
@@ -235,7 +238,8 @@ class StreamThread(threading.Thread):
                     "https://twitter.com/"\
                     + rep_tweet["user"]["screen_name"]\
                     + "/status/"+rep_tweet["id_str"]
-                short_url = shorten_url(tweet_link)
+                """
+                short_url = shorten_url(news_content[1])
                 message = random.choice(messages) + " " + short_url
                 reply(
                     tweet['id'],
