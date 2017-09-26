@@ -4,3 +4,4 @@ pyparsing==2.1.10
 six
 twitter
 requests
+lxml
