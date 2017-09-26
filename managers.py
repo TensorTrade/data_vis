@@ -9,9 +9,10 @@ import threading
 
 
 class StreamThread(threading.Thread):
-    def __init__(self, handler):
+    def __init__(self, handler, bads):
         threading.Thread.__init__(self)
         self.ts = handler
+        self.bads = bads
 
     def run(self):
         """This is the function for main listener loop."""
@@ -20,7 +21,7 @@ class StreamThread(threading.Thread):
         print("Streamer started.")
         listener = self.ts.statuses.filter(
             follow=','.join(
-                [str(bad) for bad in bads]
+                [str(bad) for bad in self.bads]
             )
         )
         while True:
@@ -30,7 +31,7 @@ class StreamThread(threading.Thread):
                 Check if the tweet is original - workaroud for now. listener
                 also gets unwanted retweets, replies and so on.
                 """
-                if tweet['user']['id'] not in bads:
+                if tweet['user']['id'] not in self.bads:
                     continue
 
                 # Gets messages to tweet.
