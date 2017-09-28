@@ -1,10 +1,10 @@
+"This script contains useful functions for building the Twitter bot."
+
 import json
-import re
 import requests
-import threading
 from lxml.html import fromstring
 from trouble_script import SHORTE_ST_TOKEN
-"This script contains useful functions for Twitter handling."
+from twitter import TwitterHTTPError
 # Here 't' is account handler defined in the main script.
 
 def reply(t, tweet_id, user_name, msg):
@@ -34,27 +34,27 @@ def print_tweet(tweet):
 
 
 def fav_tweet(t, tweet):
-    """Favorites a passed tweet and returns a success status - 1 if successful
-    otherwise 0.
+    """Favorites a passed tweet and returns a success status - 0 if successful
+    otherwise 1.
     """
     try:
-        result = t.favorites.create(_id=tweet['id'])
-        return 1
-    except TwitterHTTPError:
+        t.favorites.create(_id=tweet['id'])
         return 0
+    except TwitterHTTPError:
+        return 1
 
 
 def retweet(t, tweet):
-    """Retweets a passed tweet and returns a success status - 1 if successful
-    otherwise 0.
+    """Retweets a passed tweet and returns a success status - 0 if successful
+    otherwise 1.
     """
 
     try:
         t.statuses.retweet._id(_id=tweet["id"])
-        return 1
+        return 0
 
     except TwitterHTTPError:
-        return 0
+        return 1
 
 
 def quote_tweet(t, tweet, text):
@@ -67,18 +67,19 @@ def quote_tweet(t, tweet, text):
     try:
         string = text + " " + link
         t.statuses.update(status=string)
-        return 1
-    except TwitterHTTPError:
         return 0
+    except TwitterHTTPError:
+        return 1
 
 
 def unfollow(t, iden):
-    success = 0
+    """Unfollows the person identified by 'iden', returns 0 if successful,
+    otherwise 0."""
     try:
         t.friendships.destroy(_id=iden)
-        success += 1
-    except Exception as e:
-        print(e)
+        return 0
+    except TwitterHTTPError:
+        return 1
 
 
 def shorten_url(url):
@@ -95,14 +96,12 @@ def shorten_url(url):
 
 
 def get_top_headline(query):
-    """
-    Gets top headline for a query from Google News.
-    Returns in format (headline, link)
-    """
+    """Gets top headline for a query from Google News.
+    Returns in format (headline, link)."""
 
     # Following assumes that query doesn't contain special characters.
     url_encoded_query = '%20'.join(query.split())
-    req = "https://news.google.com/news/search/section/q/" + query
+    req = "https://news.google.com/news/search/section/q/" + url_encoded_query
 
     tree = fromstring(requests.get(req).content)
     news_item = tree.find(".//main/div/c-wiz/div/c-wiz")
