@@ -5,8 +5,10 @@ and responding to Twitter info.
 
 import json
 import random
+import re
 import time
 import threading
+
 import requests
 from functions import *  # Useful functions for Twitter and scraping stuff.
 # For identifying offensive tweets.
