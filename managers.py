@@ -5,8 +5,10 @@ and responding to Twitter info.
 
 import json
 import random
+import re
 import time
 import threading
+
 import requests
 from functions import *  # Useful functions for Twitter and scraping stuff.
 # For identifying offensive tweets.
@@ -17,13 +19,10 @@ from offensive import offensive as offensive
 
 # This gets links to files containing relevant data.
 with open('links.json', 'r') as links_file:
-    links = json.loads(links_file.read())
+    LINKS = json.loads(links_file.read())
 # Gets IDs of bad people.
-with requests.get(links['bads']) as bads_file:
-    bads = [int(user_id) for user_id in bads_file.text.split('\n')]
-# Gets messages to tweet.
-with requests.get(links['messages']) as messages_file:
-    messages = messages_file.text.split('\n')
+with requests.get(LINKS['bads']) as bads_file:
+    BADS = [int(user_id) for user_id in bads_file.text.split('\n')]
 
 
 class StreamThread(threading.Thread):
@@ -44,20 +43,20 @@ class StreamThread(threading.Thread):
         print("Streamer started.")
         listener = self.ts.statuses.filter(
             follow=','.join(
-                [str(bad) for bad in bads]
+                [str(bad) for bad in BADS]
             )
         )
         while True:
             try:
                 tweet = next(listener)
-                """Check if the tweet is original - workaroud for now.
-                listener also gets unwanted retweets, replies and so on."""
-                if tweet['user']['id'] not in bads:
+                # Check if the tweet is original - workaroud for now.
+                # Listener also gets unwanted retweets, replies and so on."""
+                if tweet['user']['id'] not in BADS:
                     continue
 
                 # Gets messages to tweet.
-                with requests.get(links['messages']) as messages_file:
-                    messages = messages_file.text.split('\n')[:-1]
+                with requests.get(LINKS['messages']) as messages_file:
+                    MESSAGES = messages_file.text.split('\n')[:-1]
                 # If they tweet, send them a kinda slappy reply.
                 """
                 reply(self.t, 
@@ -87,7 +86,7 @@ class StreamThread(threading.Thread):
                     + "/status/"+rep_tweet["id_str"]
                 """
                 short_url = shorten_url(news_content[1])
-                message = random.choice(messages) + " " + short_url
+                message = random.choice(MESSAGES) + " " + short_url
                 reply(
                     self.t,
                     tweet['id'],
@@ -118,9 +117,10 @@ class AccountThread(threading.Thread):
 
     def run(self):
         """Main loop to handle account retweets, follows, and likes."""
+
         print("Account Manager started.")
         while 1:
-            with requests.get(links['keywords']) as keywords_file:
+            with requests.get(LINKS['keywords']) as keywords_file:
                 words = keywords_file.text.split('\n')
             word = random.choice(words)
             # Add '-from:TheRealEqualizer' in the following line.
@@ -129,24 +129,22 @@ class AccountThread(threading.Thread):
                 lang="en"
                 )["statuses"]  # Understand OR operator.
 
-            with requests.get(links['screen_name']) as screen_name_file:
+            with requests.get(LINKS['screen_name']) as screen_name_file:
                 screen_name = screen_name_file.text.strip()
 
-            fr = self.t.friends.ids(screen_name=screen_name)["ids"]
-            if len(fr) > 4000:
-                """
-                To unfollow old follows because Twitter doesn't allow a large
-                following / followers ratio for people with less followers.
-                Using 4000 instead of 5000 for 'safety', so that I'm able to
-                follow some interesting people manually even after a bot
-                crash.
-                """
+            friends_ids = self.t.friends.ids(screen_name=screen_name)["ids"]
+            if len(friends_ids) > 4000:
+                
+                # To unfollow old follows because Twitter doesn't allow a large
+                # following / followers ratio for people with less followers.
+                # Using 4000 instead of 5000 for 'safety', so that I'm able to
+                # follow some interesting people manually even after a bot
+                # crash.
 
-                """
-                Perhaps 1000 is the upper limit of mass unfollow in one go.
-                """
+                # Perhaps 1000 is the upper limit of mass unfollow in one go.
+                
                 for _ in range(1000):
-                    unfollow(self.t, fr.pop())
+                    unfollow(self.t, friends_ids.pop())
 
             for tweet in tweets:
                 try:
