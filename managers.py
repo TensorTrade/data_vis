@@ -12,7 +12,7 @@ import threading
 import requests
 from functions import *  # Useful functions for Twitter and scraping stuff.
 # For identifying offensive tweets.
-from offensive import offensive as offensive
+from offensive import OFFENSIVE
 
 
 # Perhaps using a database would be better if frequent updation is needed.
@@ -148,7 +148,7 @@ class AccountThread(threading.Thread):
 
             for tweet in tweets:
                 try:
-                    if re.search(offensive, tweet["text"]) is None:
+                    if re.search(OFFENSIVE, tweet["text"]) is None:
                         #print("Search tag:", word)
                         #print_tweet(tweet)
                         #print()

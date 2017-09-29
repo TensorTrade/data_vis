@@ -1,9 +1,12 @@
+"""This script contains regular expression compilation of offensive words
+which is to be used to filter away potentially offensive tweets."""
+
 import re
 
 # Following offensive compilation is not my stuff.
 # To be used for identifying offensive tweets.
 # Copyright (c) 2013-2017 Molly White.
-offensive = re.compile(
+OFFENSIVE = re.compile(
     r"\b(deaths?|dead(ly)?|die(s|d)?|hurts?|(sex(ual(ly)?)?|"
     r"child)[ -]?(abused?|trafficking|"
     r"assault(ed|s)?)|injur(e|i?es|ed|y)|kill(ing|ed|er|s)?s?|"
