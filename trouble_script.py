@@ -22,7 +22,7 @@ try:
             os.environ['TW_CONSUMER_SECRET']
         )
         SHORTE_ST_TOKEN = os.environ['SHORTE_ST_TOKEN']
-except KeyError:  # For local run.
+except KeyError:  # For local runs.
     with open('.env', 'r') as secret:
         exec(secret.read())
         oauth = OAuth(
