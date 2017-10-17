@@ -82,7 +82,10 @@ class StreamThread(threading.Thread):
                 #     + "/status/"+rep_tweet["id_str"]
 
                 short_url = functions.shorten_url(news_content[1])
-                message = random.choice(messages) + " " + short_url
+                # message = random.choice(messages) + " " + short_url
+                # Instead of a catchy but unrelated text, tweet the headline
+                # itself with the short link.
+                message = news_content[0] + " " + short_url
                 functions.reply(
                     self.handler,
                     tweet['id'],
