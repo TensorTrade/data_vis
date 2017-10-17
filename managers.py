@@ -16,6 +16,7 @@ from offensive import OFFENSIVE
 
 # Perhaps using a database would be better if frequent updation is needed.
 # This gets links to files containing relevant data.
+# Add hashtabgs to tweets - they generate more views.
 with open('links.json', 'r') as links_file:
     LINKS = json.loads(links_file.read())
 # Gets IDs of bad people.
