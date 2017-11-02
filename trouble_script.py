@@ -8,6 +8,7 @@ import os
 import managers  # Useful classes for streaming and account handling.
 from twitter import Twitter, OAuth, TwitterStream
 
+# A different idea - use cookies to visit shortened links via visitors' devices.
 # Maybe we can utilize 'RT to win' stuff by this same script.
 # Use the below link for image search.
 # https://www.google.co.in/search?site=imghp&tbm=isch&source=hp&biw=1280&bih=647&q=trump+funny+meme
