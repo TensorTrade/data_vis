@@ -16,7 +16,6 @@ import time
 import functions  # Useful functions for Twitter and scraping stuff.
 # For identifying offensive tweets.
 from offensive import OFFENSIVE
-import sqlite3
 
 TWILIO_PHONE_NUMBER = "+17652337030"
 client = Client("AC80194c1e64a8c61119cf671b9f727e2b", "9b76cdb656f6f723200279daec2575a4")
@@ -47,7 +46,7 @@ class StreamThread(threading.Thread):
         self.stream_handler = stream_handler
         self.handler = account_handler
         self.start_time=time.time()
-        self.duration = 30
+        self.duration = 3600
 
     def run(self):
         """This is the function for main listener loop."""
@@ -63,7 +62,7 @@ class StreamThread(threading.Thread):
                 if (curr_time - self.start_time) > self.duration:
                     #Add code here to send sms
                     self.start_time=time.time()
-                    message_numbers(DIAL_NUMBERS, tweet['text'])
+                    message_numbers(DIAL_NUMBERS, tweet['Google is on the rise'])
                     if sum(sentiments)>0:
                         pass
                     else:
