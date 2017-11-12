@@ -8,12 +8,23 @@ import random
 import re
 import time
 import threading
-
+# import nlp_sent
 import requests
+from twilio.rest import Client
+import datetime
+import time
 import functions  # Useful functions for Twitter and scraping stuff.
 # For identifying offensive tweets.
 from offensive import OFFENSIVE
+import sqlite3
 
+TWILIO_PHONE_NUMBER = "+17652337030"
+client = Client("AC80194c1e64a8c61119cf671b9f727e2b", "9b76cdb656f6f723200279daec2575a4")
+DIAL_NUMBERS=['+919660923531']
+
+def message_numbers(numbers_list, body):
+    for number in numbers_list:
+        client.messages.create(to=number, from_=TWILIO_PHONE_NUMBER, body="body", method="GET")
 # Perhaps using a database would be better if frequent updation is needed.
 # This gets links to files containing relevant data.
 # Add hashtabgs to tweets - they generate more views.
@@ -23,6 +34,7 @@ with open('links.json', 'r') as links_file:
 with requests.get(LINKS['bads']) as bads_file:
     BADS = [int(user_id) for user_id in bads_file.text.split('\n')]
 
+sentiments = list()
 
 class StreamThread(threading.Thread):
     """
@@ -34,28 +46,38 @@ class StreamThread(threading.Thread):
         threading.Thread.__init__(self)
         self.stream_handler = stream_handler
         self.handler = account_handler
+        self.start_time=time.time()
+        self.duration = 30
 
     def run(self):
         """This is the function for main listener loop."""
         # TBD: Add periodic data checks to get updated data for messages, bads.
         # Listen to bad people.
         print("Streamer started.")
-        listener = self.stream_handler.statuses.filter(
-            follow=','.join(
-                [str(bad) for bad in BADS]
-            )
-        )
+        listener = self.stream_handler.statuses.filter(track='Google')
+        
         while True:
             try:
                 tweet = next(listener)
+                curr_time = time.time()
+                if (curr_time - self.start_time) > self.duration:
+                    #Add code here to send sms
+                    self.start_time=time.time()
+                    message_numbers(DIAL_NUMBERS, tweet['text'])
+                    if sum(sentiments)>0:
+                        pass
+                    else:
+                        pass
+
                 # Check if the tweet is original - workaroud for now.
                 # Listener also gets unwanted retweets, replies and so on."""
                 if tweet['user']['id'] not in BADS:
                     continue
-
                 # Gets messages to tweet.
                 with requests.get(LINKS['messages']) as messages_file:
                     messages = messages_file.text.split('\n')[:-1]
+                self.mynlp = nlp() 
+                sentiments.append(mynlp.get_tweet_sentiment(messages))
                 # If they tweet, send them a kinda slappy reply.
 
                 # reply(self.handler,
