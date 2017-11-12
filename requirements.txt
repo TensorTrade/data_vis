@@ -5,3 +5,5 @@ six
 twitter
 requests
 lxml
+twilio
+textblob
